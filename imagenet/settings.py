@@ -17,6 +17,10 @@ NEWSPIDER_MODULE = 'imagenet.spiders'
 
 IMAGES_STORE = 'image/'
 MEDIA_ALLOW_REDIRECTS = True
+# default 180 (in secs)
+DOWNLOAD_TIMEOUT = 60
+# default 60 (in secs)
+DNS_TIMEOUT = 30
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36"
@@ -25,7 +29,7 @@ USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Ge
 ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
-#CONCURRENT_REQUESTS = 32
+CONCURRENT_REQUESTS = 32
 
 # Configure a delay for requests for the same website (default: 0)
 # See https://doc.scrapy.org/en/latest/topics/settings.html#download-delay
@@ -67,9 +71,9 @@ DOWNLOAD_DELAY = 0
 
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
-ITEM_PIPELINES = {
-    'imagenet.pipelines.ImagenetPipeline': 1,
-}
+#ITEM_PIPELINES = {
+#    'imagenet.pipelines.ImagenetPipeline': 1,
+#}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://doc.scrapy.org/en/latest/topics/autothrottle.html
