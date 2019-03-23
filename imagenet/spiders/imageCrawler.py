@@ -14,23 +14,35 @@ from PIL import Image
 
 class ImagecrawlerSpider(scrapy.Spider):
     name = 'imageCrawler'
+    # TODO: http://image-net.org/archive/words.txt
 
-    def __init__(self, getSearch='dog', *args, **kwargs):
+    def __init__(self, getSearch='dog', wnid=None, *args, **kwargs):
         super(ImagecrawlerSpider, self).__init__(*args, **kwargs)
+        self.wnid=wnid
         self.getSearch = getSearch
+
         if 'image' not in os.listdir('.'):
             os.mkdir('image')
         if self.getSearch not in os.listdir('image/'):
             os.mkdir('image/%s' % self.getSearch)
-        self.start_urls = ['http://www.image-net.org/search?q=%s' % getSearch]
+        url = "http://www.image-net.org/search?q=" + getSearch
+        if self.wnid:
+            url = "http://image-net.org/api/text/imagenet.synset.geturls?wnid=" + wnid
+        
+        self.start_urls = [url]
 
     def parse(self, response):
-        mainLinks = response.xpath('//td[@width="70%"]/a/@href').extract()
+        if self.wnid:
+            urls = str(response.body).split('\\r\\n')[:-1]
+            for url in urls:
+                yield scrapy.Request(url, callback=self.parse_download)
+        else:
+            mainLinks = response.xpath('//td[@width="70%"]/a/@href').extract()
 
-        for mainLink in mainLinks:
-            wnidSeg = re.search('\?([^\?]+)', mainLink)
-            download_page = "api/text/imagenet.synset.geturls?" + wnidSeg.group(1)
-            yield scrapy.Request(response.urljoin(download_page), callback=self.parse_urls)
+            for mainLink in mainLinks:
+                wnidSeg = re.search('\?([^\?]+)', mainLink)
+                download_page = "api/text/imagenet.synset.geturls?" + wnidSeg.group(1)
+                yield scrapy.Request(response.urljoin(download_page), callback=self.parse_urls)
 
     def parse_urls(self, response):
         urls = str(response.body).split('\\r\\n')[:-1]
