@@ -4,8 +4,8 @@ Usage: scrapy crawl imageCrawler -a keyword=keyword\[\+keyword\]<br />
 default keyword=dog<br /><br />
 
 example:</br>
-$ scrapy crawl imageCrawler -a getSearch=cat<br />
-$ scrapy crawl imageCrawler -a getSearch=woman+lady<br />
+$ scrapy crawl imageCrawler -a keyword=cat<br />
+$ scrapy crawl imageCrawler -a keyword=woman+lady<br />
 
 After launch the command, <br />
 you will get into interactive CLI to choose which categories to download.<br /><br />
