@@ -3,46 +3,43 @@ import scrapy
 import re
 import hashlib
 import os
+import sys
 from io import BytesIO
 from scrapy.utils.python import to_bytes
 from PIL import Image
-#from scrapy.loader import ItemLoader
 
-#from imagenet.items import ImagenetItem
+from imagenet.spiders.utils import interactive_input_interface
 
-
+IMAGENET_DOWNLOAD_PAGE_URI = "http://image-net.org/api/text/imagenet.synset.geturls?wnid="
 
 class ImagecrawlerSpider(scrapy.Spider):
     name = 'imageCrawler'
-    # TODO: http://image-net.org/archive/words.txt
+    # dependency: http://image-net.org/archive/words.txt
 
-    def __init__(self, getSearch='dog', wnid=None, *args, **kwargs):
+    def __init__(self, keyword='dog', *args, **kwargs):
         super(ImagecrawlerSpider, self).__init__(*args, **kwargs)
-        self.wnid=wnid
-        self.getSearch = getSearch
+        self.keyword = keyword
 
+        # create image directory if not exist
         if 'image' not in os.listdir('.'):
             os.mkdir('image')
-        if self.getSearch not in os.listdir('image/'):
-            os.mkdir('image/%s' % self.getSearch)
-        url = "http://www.image-net.org/search?q=" + getSearch
-        if self.wnid:
-            url = "http://image-net.org/api/text/imagenet.synset.geturls?wnid=" + wnid
-        
-        self.start_urls = [url]
+        # create target directory if not exist
+        if self.keyword not in os.listdir('image/'):
+            os.mkdir('image/%s' % self.keyword)
+
+        self.start_urls = ["http://image-net.org/archive/words.txt"]
 
     def parse(self, response):
-        if self.wnid:
-            urls = str(response.body).split('\\r\\n')[:-1]
-            for url in urls:
-                yield scrapy.Request(url, callback=self.parse_download)
-        else:
-            mainLinks = response.xpath('//td[@width="70%"]/a/@href').extract()
+        print("Loading ImageNet keywords list...")
+        wnidMapWords = [line.split('\\t') for line in str(response.body).split('\\n')]
+        # enter in interactive CLI interface
+        winds = interactive_input_interface(wnidMapWords, self.keyword)
 
-            for mainLink in mainLinks:
-                wnidSeg = re.search('\?([^\?]+)', mainLink)
-                download_page = "api/text/imagenet.synset.geturls?" + wnidSeg.group(1)
-                yield scrapy.Request(response.urljoin(download_page), callback=self.parse_urls)
+        if not winds:
+            sys.exist(0)
+
+        for downloadPageUrl in [ IMAGENET_DOWNLOAD_PAGE_URI + val for val in winds ]:
+            yield scrapy.Request(downloadPageUrl, callback=self.parse_urls)
 
     def parse_urls(self, response):
         urls = str(response.body).split('\\r\\n')[:-1]
@@ -51,7 +48,7 @@ class ImagecrawlerSpider(scrapy.Spider):
 
     def parse_download(self, response):
         filename = hashlib.sha1(to_bytes(response.url)).hexdigest()
-        path = 'image/%s/%s.jpg' % (self.getSearch, filename)
+        path = 'image/%s/%s.jpg' % (self.keyword, filename)
         orig_image = Image.open(BytesIO(response.body))
 
         image, buf = self.convert_image(orig_image)
