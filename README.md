@@ -7,7 +7,7 @@ example:</br>
 $ scrapy crawl imageCrawler -a getSearch=cat<br />
 $ scrapy crawl imageCrawler -a getSearch=woman+lady<br />
 
-After lunch the command, <br />
+After launch the command, <br />
 you will get into interactive CLI to choose which categories to download.<br /><br />
 
 The mapping between WordNet ID and words for all synsets in this 
