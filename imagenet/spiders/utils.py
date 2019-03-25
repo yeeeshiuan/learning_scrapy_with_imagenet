@@ -23,13 +23,13 @@ def interactive_input_interface(wnidMapWords, inputString):
     choiceLines = []
     idx = 0
     for val in wnidMapWords:
-        for keyword in keywords:
-            if re.match('(?:(?:.*?([^ ,]+ ' + keyword + '$))|' +   # adj keyword
-                           '(?:.*?([^ ,]+ ' + keyword + '),)|' +   # adj keyword,
-                           '(^' + keyword + '$)|' +                # keyword
-                           '(^' + keyword + ',)|' +                # keyword,
-                           '(?:.*? (' + keyword + '$))|' +         # , keyword
-                           '(?:.*? (' + keyword + '),))', val[1]): # , keyword,
+        for keyword in keywords:                                        # adjkeyword[,]
+            if re.match('(?:(?:.*?([^ ,]+[ ]{0,1}' + keyword + '$))|' + # adj keyword
+                           '(?:.*?([^ ,]+[ ]{0,1}' + keyword + '),)|' + # adj keyword,
+                           '(^' + keyword + '$)|' +                     # keyword
+                           '(^' + keyword + ',)|' +                     # keyword,
+                           '(?:.*? (' + keyword + '$))|' +              # , keyword
+                           '(?:.*? (' + keyword + '),))', val[1]):      # , keyword,
                 choiceLines.append(val)
                 break
 
